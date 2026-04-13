@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Movie List</title>
+
+<style>
+body{
+    font-family: Arial;
+    background-color: lightgray;
+}
+
+.box{
+    background: white;
+    width: 300px;
+    margin: auto;
+    padding: 15px;
+    border: 1px solid black;
+}
+
+input, select{
+    width: 100%;
+    margin-bottom: 10px;
+}
+
+.star{
+    font-size: 22px;
+    cursor: pointer;
+    color: gray;
+}
+
+.gold{
+    color: gold;
+}
+
+.movie{
+    border: 1px solid gray;
+    margin-top: 10px;
+    padding: 5px;
+}
+</style>
+
+</head>
+
+<body>
+
+<div class="box">
+
+<h2>Movie List</h2>
+
+Title:<br>
+<input id="title"><br>
+
+Year:<br>
+<input id="year"><br>
+
+Genre:<br>
+<select id="genre">
+<option>Action</option>
+<option>Comedy</option>
+<option>Drama</option>
+<option>Horror</option>
+</select>
+
+Rating:<br>
+
+<span class="star" id="a" onclick="set(1)">★</span>
+<span class="star" id="b" onclick="set(2)">★</span>
+<span class="star" id="c" onclick="set(3)">★</span>
+<span class="star" id="d" onclick="set(4)">★</span>
+<span class="star" id="e" onclick="set(5)">★</span>
+
+<br><br>
+
+<button onclick="addMovie()">Add Movie</button>
+
+<h3>Movies</h3>
+<div id="list"></div>
+
+</div>
+
+<script>
+
+var r = 0;
+
+function set(x){
+    r = x;
+
+    document.getElementById("a").classList.remove("gold");
+    document.getElementById("b").classList.remove("gold");
+    document.getElementById("c").classList.remove("gold");
+    document.getElementById("d").classList.remove("gold");
+    document.getElementById("e").classList.remove("gold");
+
+    if(x>=1) document.getElementById("a").classList.add("gold");
+    if(x>=2) document.getElementById("b").classList.add("gold");
+    if(x>=3) document.getElementById("c").classList.add("gold");
+    if(x>=4) document.getElementById("d").classList.add("gold");
+    if(x>=5) document.getElementById("e").classList.add("gold");
+}
+
+function addMovie(){
+
+    var t = document.getElementById("title").value;
+    var y = document.getElementById("year").value;
+    var g = document.getElementById("genre").value;
+
+    if(t=="" || y=="" || r==0){
+        alert("fill all");
+        return;
+    }
+
+    var m = localStorage.getItem("movies");
+
+    if(m==null){
+        m = [];
+    }else{
+        m = JSON.parse(m);
+    }
+
+    var obj = {
+        title: t,
+        year: y,
+        genre: g,
+        rating: r.toString()
+    };
+
+    m.push(obj);
+
+    localStorage.setItem("movies", JSON.stringify(m));
+
+    document.getElementById("title").value="";
+    document.getElementById("year").value="";
+
+    r = 0;
+
+    set(0);
+
+    show();
+}
+
+function show(){
+
+    var list = document.getElementById("list");
+    list.innerHTML = "";
+
+    var m = JSON.parse(localStorage.getItem("movies"));
+
+    if(!m) return;
+
+    for(var i=0;i<m.length;i++){
+
+        var stars = "";
+
+        var count = m[i].rating;
+        var j = 0;
+
+        while(j < count){
+            stars += "★";
+            j++;
+        }
+
+        list.innerHTML +=
+        "<div style='border:1px solid gray; margin-top:5px; padding:5px'>" +
+        m[i].title + " (" + m[i].year + ") - " +
+        m[i].genre + ", Rating: " + stars +
+        "</div>";
+    }
+}
+
+show();
+
+</script>
+
+</body>
+</html>
