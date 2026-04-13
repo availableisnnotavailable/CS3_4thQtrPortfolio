@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Movie List</title>
+
+<style>
+body{
+    font-family: Arial;
+    background-color: lightgray;
+}
+
+.box{
+    background:white;
+    width:300px;
+    margin:auto;
+    padding:15px;
+    border:1px solid black;
+}
+
+input,select{
+    width:100%;
+    margin-bottom:10px;
+}
+
+.star{
+    font-size:22px;
+    cursor:pointer;
+    color:gray;
+}
+
+.gold{
+    color:gold;
+}
+
+.movie{
+    border:1px solid gray;
+    margin-top:10px;
+    padding:5px;
+}
+</style>
+
+</head>
+
+<body>
+
+<div class="box">
+
+<h2>Movie List</h2>
+
+Title:<br>
+<input id="title"><br>
+
+Year:<br>
+<input id="year"><br>
+
+Genre:<br>
+<select id="genre">
+<option>Action</option>
+<option>Comedy</option>
+<option>Drama</option>
+<option>Horror</option>
+</select>
+
+Rating:<br>
+
+<span class="star" id="a" onclick="set(1)">★</span>
+<span class="star" id="b" onclick="set(2)">★</span>
+<span class="star" id="c" onclick="set(3)">★</span>
+<span class="star" id="d" onclick="set(4)">★</span>
+<span class="star" id="e" onclick="set(5)">★</span>
+
+<br><br>
+
+<button onclick="addMovie()">Add Movie</button>
+
+<h3>Movies</h3>
+<div id="list"></div>
+
+</div>
+
+<script>
+
+var r = 0;
+
+function set(x){
+    r = x;
+
+    document.getElementById("a").style.color="gray";
+    document.getElementById("b").style.color="gray";
+    document.getElementById("c").style.color="gray";
+    document.getElementById("d").style.color="gray";
+    document.getElementById("e").style.color="gray";
+
+    if(x>=1) document.getElementById("a").style.color="gold";
+    if(x>=2) document.getElementById("b").style.color="gold";
+    if(x>=3) document.getElementById("c").style.color="gold";
+    if(x>=4) document.getElementById("d").style.color="gold";
+    if(x>=5) document.getElementById("e").style.color="gold";
+}
+
+function addMovie(){
+
+    var t = document.getElementById("title").value;
+    var y = document.getElementById("year").value;
+    var g = document.getElementById("genre").value;
+
+    if(t=="" || y=="" || r==0){
+        alert("fill all");
+        return;
+    }
+
+    var m = localStorage.getItem("movies");
+
+    if(m==null){
+        m = [];
+    }else{
+        m = JSON.parse(m);
+    }
+
+    var found = false;
+
+    // 🔁 UPDATE LOGIC
+    for(var i=0;i<m.length;i++){
+        if(m[i].title == t){
+
+            // average rating
+            var oldR = parseInt(m[i].rating);
+            var newR = Math.round((oldR + r)/2);
+
+            m[i].year = y;
+            m[i].genre = g;
+            m[i].rating = newR.toString();
+
+            found = true;
+        }
+    }
+
+    // ➕ CREATE if not found
+    if(!found){
+        var obj = {
+            title: t,
+            year: y,
+            genre: g,
+            rating: r.toString()
+        };
+        m.push(obj);
+    }
+
+    localStorage.setItem("movies", JSON.stringify(m));
+
+    document.getElementById("title").value="";
+    document.getElementById("year").value="";
+
+    r = 0;
+    set(0);
+
+    show();
+}
+
+function del(index){
+
+    var ok = confirm("delete this movie?");
+
+    if(ok){
+
+        var m = JSON.parse(localStorage.getItem("movies"));
+
+        m.splice(index,1);
+
+        localStorage.setItem("movies", JSON.stringify(m));
+
+        show();
+    }
+}
+
+function show(){
+
+    var list = document.getElementById("list");
+    list.innerHTML = "";
+
+    var m = JSON.parse(localStorage.getItem("movies"));
+
+    if(!m) return;
+
+    for(var i=0;i<m.length;i++){
+
+        var stars = "";
+        var j = 0;
+
+        while(j < m[i].rating){
+            stars += "★";
+            j++;
+        }
+
+        list.innerHTML +=
+        "<div style='border:1px solid gray; margin-top:5px; padding:5px'>" +
+        m[i].title + " (" + m[i].year + ") - " +
+        m[i].genre + ", Rating: " + stars +
+        " <button onclick='del("+i+")'>Delete</button>" +
+        "</div>";
+    }
+}
+
+show();
+
+</script>
+
+</body>
+</html>
